@@ -59,8 +59,7 @@ const STRING_GRID_OPTIONS: KeysOfType<string>[] = [
     'columnMenu',
     'tooltipShowMode',
     'grandTotalRow',
-    // 'treeDataChildrenField',
-    // 'treeDataParentIdField',
+    'themeCssLayer',
 ];
 
 // only used internally
@@ -89,6 +88,7 @@ const OBJECT_GRID_OPTIONS: KeysLike<object | HTMLElement>[] = [
     'loadingOverlayComponentParams',
     'noRowsOverlayComponentParams',
     'popupParent',
+    'themeStyleContainer',
     'statusBar',
     'chartThemeOverrides',
     'customChartThemes',

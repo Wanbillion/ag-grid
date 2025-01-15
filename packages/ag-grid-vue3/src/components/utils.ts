@@ -1303,6 +1303,23 @@ export interface Props<TData> {
     /** If your theme uses a font that is available on Google Fonts, pass true to load it from Google's CDN.
          */
     loadThemeGoogleFonts?: boolean | undefined,
+    /** The CSS layer that this theme should be rendered onto. If your
+         * application loads its styles into a CSS layer, use this to load the grid
+         * styles into a previous layer so that application styles can override grid
+         * styles.
+         *
+         * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@layer
+         */
+    themeCssLayer?: string | undefined,
+    /** An element to insert style elements into when injecting styles into the
+         * grid. If undefined, styles will be added to the document head for grids
+         * rendered in the main document fragment, or to the grid wrapper element
+         * for other grids (e.g. those rendered in a shadow DOM or detached from the
+         * document).
+         *
+         * @initial
+         */
+    themeStyleContainer?: HTMLElement | undefined,
     /** For customising the context menu.
          */
     getContextMenuItems?: GetContextMenuItems<TData> | undefined,
@@ -1828,6 +1845,8 @@ export function getProps() {
         initialState: undefined,
         theme: undefined,
         loadThemeGoogleFonts: undefined,
+        themeCssLayer: undefined,
+        themeStyleContainer: undefined,
         getContextMenuItems: undefined,
         getMainMenuItems: undefined,
         postProcessPopup: undefined,
