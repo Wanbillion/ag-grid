@@ -926,6 +926,10 @@ export class ClientSideRowModel extends BeanStub implements IClientSideRowModel,
         this.depthFirstSearchRowNodes(callback, includeFooterNodes);
     }
 
+    public forEachFlattenedNode(callback: (rowNode: RowNode<any>, index: number) => void): void {
+        this.rowsToDisplay.forEach(callback);
+    }
+
     public forEachNodeAfterFilter(
         callback: (node: RowNode, index: number) => void,
         includeFooterNodes: boolean = false

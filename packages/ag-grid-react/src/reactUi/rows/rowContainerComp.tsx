@@ -79,6 +79,8 @@ const RowContainerComp = ({ name }: { name: RowContainerName }) => {
                     rowCtrlsRef.current = rowCtrls;
                     updateRowCtrlsOrdered(useFlush);
                 },
+                //todo react
+                updateSpannedCells: () => {},
                 setDomOrder: (domOrder: boolean) => {
                     if (domOrderRef.current != domOrder) {
                         domOrderRef.current = domOrder;

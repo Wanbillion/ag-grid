@@ -1,5 +1,7 @@
 import type { _ValueApi, _ValueCacheApi } from '../api/gridApi';
 import type { _ModuleWithApi, _ModuleWithoutApi } from '../interfaces/iModule';
+import { RowSpanService } from '../rendering/spanning/rowSpanService';
+import { SpannedCellRenderer } from '../rendering/spanning/spannedCellRenderer';
 import { VERSION } from '../version';
 import { expireValueCache, getCellValue } from './cellApi';
 import { ChangeDetectionService } from './changeDetectionService';
@@ -13,7 +15,8 @@ import { ValueCache } from './valueCache';
 export const ValueCacheModule: _ModuleWithApi<_ValueCacheApi> = {
     moduleName: 'ValueCache',
     version: VERSION,
-    beans: [ValueCache],
+    // temp, make a new module for this stuff.
+    beans: [ValueCache, RowSpanService, SpannedCellRenderer],
     apiFunctions: {
         expireValueCache,
     },

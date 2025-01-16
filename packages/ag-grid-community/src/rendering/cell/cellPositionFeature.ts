@@ -51,6 +51,23 @@ export class CellPositionFeature extends BeanStub {
         this.onLeftChanged();
         this.onWidthChanged();
         this.applyRowSpan();
+
+        // tidy up, this check unnecessary as cell already knows if it's spanning
+        if (this.beans.rowSpanSvc?.isCellSpanning(this.column, this.rowNode)) {
+            const refreshSpanHeight = () => {
+                const spanHeight = this.beans.rowSpanSvc?.getSpannedHeight(this.column, this.rowNode);
+                if (spanHeight != null) {
+                    this.eGui.style.height = `${spanHeight}px`;
+                    // spanned cells need vertically positioned
+                    this.eGui.style.transform = `translateY(${this.rowNode.rowTop}px)`;
+                }
+            };
+            refreshSpanHeight();
+            this.addManagedListeners(this.beans.eventSvc, {
+                // better evts for this.
+                modelUpdated: refreshSpanHeight,
+            });
+        }
     }
 
     private onNewColumnsLoaded(): void {

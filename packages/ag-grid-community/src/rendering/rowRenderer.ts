@@ -687,6 +687,10 @@ export class RowRenderer extends BeanStub implements NamedBean {
 
     public getAllCellCtrls(): CellCtrl[] {
         const res: CellCtrl[] = [];
+        const spannedCells = this.beans.spannedCellRenderer?.getAllCtrlsArr();
+        if (spannedCells) {
+            res.push(...spannedCells);
+        }
         const rowCtrls = this.getAllRowCtrls();
         const rowCtrlsLength = rowCtrls.length;
 

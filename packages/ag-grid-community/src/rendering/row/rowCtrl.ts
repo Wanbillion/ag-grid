@@ -487,6 +487,15 @@ export class RowCtrl extends BeanStub<RowCtrlEvent> {
             // reused eg pivot_0, pivot_1 etc
             const colInstanceId = col.getInstanceId();
             let cellCtrl = prev.map[colInstanceId];
+
+            // sticky cells, if handled as a sticky cell, ignore this.
+            if (this.beans.rowSpanSvc?.shouldSkipCell(col, this.rowNode)) {
+                if (cellCtrl) {
+                    cellCtrl.destroy();
+                }
+                return;
+            }
+
             if (!cellCtrl) {
                 cellCtrl = new CellCtrl(col, this.rowNode, this.beans, this);
             }

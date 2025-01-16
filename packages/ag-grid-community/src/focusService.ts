@@ -23,6 +23,7 @@ import type { NavigationService } from './navigation/navigationService';
 import type { OverlayService } from './rendering/overlays/overlayService';
 import { DOM_DATA_KEY_ROW_CTRL } from './rendering/row/rowCtrl';
 import type { RowRenderer } from './rendering/rowRenderer';
+import type { CellSpan } from './rendering/spanning/rowSpanCache';
 import { _last } from './utils/array';
 import {
     _focusInto,
@@ -156,6 +157,18 @@ export class FocusService extends BeanStub implements NamedBean {
         return false;
     }
 
+    public shouldRestoreFocusToCellSpan(span: CellSpan): boolean {
+        if (this.isSpanRestoreFocused(span)) {
+            setTimeout(() => {
+                // Clear the restore focused cell position after the timeout to avoid
+                // the cell being focused again and stealing focus from another part of the app.
+                this.restoredFocusedCell = null;
+            }, 0);
+            return true;
+        }
+        return false;
+    }
+
     public clearRestoreFocus(): void {
         this.restoredFocusedCell = null;
         this.awaitRestoreFocusedCell = false;
@@ -182,6 +195,24 @@ export class FocusService extends BeanStub implements NamedBean {
         }
 
         return _areCellsEqual(cellPosition, this.restoredFocusedCell);
+    }
+
+    private isSpanRestoreFocused(cellSpan: CellSpan): boolean {
+        if (this.restoredFocusedCell == null) {
+            return false;
+        }
+
+        if (this.restoredFocusedCell.column !== cellSpan.col) {
+            return false;
+        }
+        // do pinned
+
+        for (const node of cellSpan.getSpannedNodes()) {
+            if (node.rowIndex === this.restoredFocusedCell.rowIndex) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public setRestoreFocusedCell(cellPosition: CellPosition): void {
@@ -260,6 +291,24 @@ export class FocusService extends BeanStub implements NamedBean {
         }
 
         return _areCellsEqual(cellPosition, this.focusedCell);
+    }
+
+    public isSpanFocused(cellSpan: CellSpan): boolean {
+        if (this.focusedCell == null) {
+            return false;
+        }
+
+        if (this.focusedCell.column !== cellSpan.col) {
+            return false;
+        }
+        // do pinned
+
+        for (const node of cellSpan.getSpannedNodes()) {
+            if (node.rowIndex === this.focusedCell.rowIndex) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public isRowNodeFocused(rowNode: RowNode): boolean {

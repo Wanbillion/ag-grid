@@ -1,3 +1,5 @@
+import { CellComp } from '../../rendering/cell/cellComp';
+import type { CellCtrl } from '../../rendering/cell/cellCtrl';
 import { RowComp } from '../../rendering/row/rowComp';
 import type { RowCtrl, RowCtrlInstanceId } from '../../rendering/row/rowCtrl';
 import { _setAriaRole } from '../../utils/aria';
@@ -9,23 +11,16 @@ import type { IRowContainerComp, RowContainerName, RowContainerOptions } from '.
 import { RowContainerCtrl, _getRowContainerOptions } from './rowContainerCtrl';
 
 function templateFactory(options: RowContainerOptions): string {
-    let res: string;
-    if (options.type === 'center') {
-        res =
-            /* html */
-            `<div class="${options.viewport}" data-ref="eViewport" role="presentation">
+    return `<div class="${options.viewport}" data-ref="eViewport" role="presentation" style="position: relative">
                 <div class="${options.container}" data-ref="eContainer"></div>
+                <div class="${options.container}-spanned-cells" data-ref="eSpannedCellContainer" style="position:absolute; top: 0"></div>
             </div>`;
-    } else {
-        res = /* html */ `<div class="${options.container}" data-ref="eContainer"></div>`;
-    }
-
-    return res;
 }
 
 export class RowContainerComp extends Component {
     private readonly eViewport: HTMLElement = RefPlaceholder;
     private readonly eContainer: HTMLElement = RefPlaceholder;
+    private readonly eSpannedCellContainer: HTMLElement = RefPlaceholder;
 
     private readonly name: RowContainerName;
     private readonly options: RowContainerOptions;
@@ -46,14 +41,27 @@ export class RowContainerComp extends Component {
 
     public postConstruct(): void {
         const compProxy: IRowContainerComp = {
-            setHorizontalScroll: (offset: number) => (this.eViewport.scrollLeft = offset),
-            setViewportHeight: (height) => (this.eViewport.style.height = height),
+            setHorizontalScroll: (offset: number) => {
+                this.eViewport.scrollLeft = offset;
+                this.eSpannedCellContainer.scrollLeft = offset;
+            },
+            setViewportHeight: (height) => {
+                this.eViewport.style.height = height;
+                this.eSpannedCellContainer.style.height = height;
+            },
             setRowCtrls: ({ rowCtrls }) => this.setRowCtrls(rowCtrls),
+            updateSpannedCells: () => this.updateSpannedCells(),
             setDomOrder: (domOrder) => {
                 this.domOrder = domOrder;
             },
-            setContainerWidth: (width) => (this.eContainer.style.width = width),
-            setOffsetTop: (offset) => (this.eContainer.style.transform = `translateY(${offset})`),
+            setContainerWidth: (width) => {
+                this.eContainer.style.width = width;
+                this.eSpannedCellContainer.style.width = width;
+            },
+            setOffsetTop: (offset) => {
+                this.eContainer.style.transform = `translateY(${offset})`;
+                this.eSpannedCellContainer.style.transform = `translateY(${offset})`;
+            },
         };
 
         const ctrl = this.createManagedBean(new RowContainerCtrl(this.name));
@@ -99,6 +107,47 @@ export class RowContainerComp extends Component {
         });
 
         _setAriaRole(this.eContainer, 'rowgroup');
+    }
+
+    /**
+     * This is done inside of one container, this is because
+     * for col spanning _with_ row spanning it's 2 dimensional,
+     * we cannot constrain cells in either direction
+     */
+    private spanningCells: Map<CellCtrl, CellComp> = new Map();
+    private updateSpannedCells() {
+        const rowSpanSvc = this.beans.rowSpanSvc;
+        if (!rowSpanSvc || !this.options.supportsSpanning) {
+            return;
+        }
+
+        const spannedCtrls = this.beans.spannedCellRenderer?.getCtrls(this.options.type);
+        if (!spannedCtrls) {
+            return;
+        }
+
+        const spannedCells = new Map<CellCtrl, CellComp>();
+        for (const ctrl of spannedCtrls) {
+            const existingComp = this.spanningCells.get(ctrl);
+            if (existingComp) {
+                spannedCells.set(ctrl, existingComp);
+                this.spanningCells.delete(ctrl);
+                continue;
+            }
+
+            const comp = new CellComp(this.beans, ctrl, false, this.eSpannedCellContainer, false);
+            // does not assert dom order
+            this.eSpannedCellContainer.appendChild(comp.getGui());
+            spannedCells.set(ctrl, comp);
+        }
+
+        // remove all missing cells
+        for (const comp of this.spanningCells.values()) {
+            this.eSpannedCellContainer.removeChild(comp.getGui());
+            comp.destroy();
+        }
+
+        this.spanningCells = spannedCells;
     }
 
     public appendRow(element: HTMLElement) {

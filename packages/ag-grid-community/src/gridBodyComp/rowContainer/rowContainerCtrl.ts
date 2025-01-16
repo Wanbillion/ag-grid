@@ -49,6 +49,7 @@ export type RowContainerOptions = {
     container: string;
     viewport?: string;
     pinnedType?: ColumnPinnedType;
+    supportsSpanning?: true;
     fullWidth?: boolean;
     getRowCtrls: GetRowCtrls;
 };
@@ -64,18 +65,21 @@ const ContainerCssClasses: Record<RowContainerName, RowContainerOptions> = {
         container: 'ag-center-cols-container',
         viewport: 'ag-center-cols-viewport',
         getRowCtrls: getCentreRowCtrls,
+        supportsSpanning: true,
     },
     left: {
         type: 'left',
         container: 'ag-pinned-left-cols-container',
         pinnedType: 'left',
         getRowCtrls: getCentreRowCtrls,
+        supportsSpanning: true,
     },
     right: {
         type: 'right',
         container: 'ag-pinned-right-cols-container',
         pinnedType: 'right',
         getRowCtrls: getCentreRowCtrls,
+        supportsSpanning: true,
     },
     fullWidth: {
         type: 'fullWidth',
@@ -218,6 +222,7 @@ export interface IRowContainerComp {
     setViewportHeight(height: string): void;
     setHorizontalScroll(offset: number): void;
     setRowCtrls(params: { rowCtrls: RowCtrl[]; useFlushSync?: boolean }): void;
+    updateSpannedCells(): void;
     setDomOrder(domOrder: boolean): void;
     setContainerWidth(width: string): void;
     setOffsetTop(offset: string): void;
@@ -274,7 +279,7 @@ export class RowContainerCtrl extends BeanStub implements ScrollPartner {
         this.eContainer = eContainer;
         this.eViewport = eViewport;
 
-        this.createManagedBean(new RowContainerEventsFeature(this.eContainer));
+        this.createManagedBean(new RowContainerEventsFeature(this.eViewport)); // is this ok?
         this.addPreventScrollWhileDragging();
         this.listenOnDomOrder();
 
@@ -327,6 +332,24 @@ export class RowContainerCtrl extends BeanStub implements ScrollPartner {
 
         this.onDisplayedColumnsChanged();
         this.onDisplayedRowsChanged();
+
+        if (this.beans.spannedCellRenderer) {
+            this.addManagedListeners(this.beans.spannedCellRenderer, {
+                // tidy this up, one event with type as a param
+                leftSpannedCellsUpdated: () => {
+                    if (this.options.type !== 'left' || !this.options.supportsSpanning) return;
+                    this.comp.updateSpannedCells();
+                },
+                centerSpannedCellsUpdated: () => {
+                    if (this.options.type !== 'center' || !this.options.supportsSpanning) return;
+                    this.comp.updateSpannedCells();
+                },
+                rightSpannedCellsUpdated: () => {
+                    if (this.options.type !== 'right' || !this.options.supportsSpanning) return;
+                    this.comp.updateSpannedCells();
+                },
+            });
+        }
     }
 
     private listenOnDomOrder(): void {

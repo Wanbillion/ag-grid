@@ -1,5 +1,6 @@
 import type { ColumnState } from '../columns/columnStateUtils';
 import { BeanStub } from '../context/beanStub';
+import type { BeanCollection } from '../context/context';
 import type { AgEvent, ColumnEvent, ColumnEventType } from '../events';
 import type {
     Column,
@@ -113,6 +114,18 @@ export class AgColumn<TValue = any>
         private readonly primary: boolean
     ) {
         super();
+    }
+
+    public wireBeans(beans: BeanCollection) {
+        // reactivity
+        if ((this.colDef as any).testProp) {
+            this.beans.rowSpanSvc?.register(this);
+        }
+    }
+
+    public override destroy() {
+        super.destroy();
+        this.beans.rowSpanSvc?.deregister(this);
     }
 
     public getInstanceId(): ColumnInstanceId {

@@ -87,7 +87,7 @@ export class CellCtrl extends BeanStub {
     public comp: ICellComp;
     public editCompDetails?: UserCompDetails;
 
-    private focusEventToRestore: CellFocusedEvent | undefined;
+    protected focusEventToRestore: CellFocusedEvent | undefined;
 
     public printLayout: boolean;
 
@@ -145,7 +145,7 @@ export class CellCtrl extends BeanStub {
         this.beans.focusSvc.clearRestoreFocus();
     }
 
-    private addFeatures(): void {
+    protected addFeatures(): void {
         const { beans } = this;
         this.positionFeature = new CellPositionFeature(this, beans);
         this.customStyleFeature = beans.cellStyles?.createCellCustomStyleFeature(this, beans);
@@ -683,7 +683,8 @@ export class CellCtrl extends BeanStub {
             beans.editSvc?.stopRowOrCellEdit(this);
         }
 
-        if (cellFocused) {
+        // TODO, how do we announce?
+        if (cellFocused && this.rowCtrl) {
             this.rowCtrl.announceDescription();
         }
     }
@@ -698,7 +699,10 @@ export class CellCtrl extends BeanStub {
     }
 
     public setInlineEditingCss(): void {
-        this.beans.editSvc?.setInlineEditingCss(this.rowCtrl);
+        // TODO, does editing make sense..?
+        if (this.rowCtrl) {
+            this.beans.editSvc?.setInlineEditingCss(this.rowCtrl);
+        }
     }
 
     // CSS Classes that only get applied once, they never change
