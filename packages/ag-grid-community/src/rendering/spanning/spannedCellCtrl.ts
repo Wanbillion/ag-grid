@@ -24,10 +24,6 @@ export class SpannedCellCtrl extends CellCtrl {
         this.beans.focusSvc.clearRestoreFocus();
     }
 
-    protected override addFeatures(): void {
-        this.addFeatures();
-    }
-
     public override onCellFocused(event?: CellFocusedEvent): void {
         const { beans } = this;
         if (_isCellFocusSuppressed(beans)) {

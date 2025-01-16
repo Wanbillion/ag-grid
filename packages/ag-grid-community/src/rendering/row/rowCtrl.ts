@@ -489,7 +489,7 @@ export class RowCtrl extends BeanStub<RowCtrlEvent> {
             let cellCtrl = prev.map[colInstanceId];
 
             // sticky cells, if handled as a sticky cell, ignore this.
-            if (this.beans.rowSpanSvc?.shouldSkipCell(col, this.rowNode)) {
+            if (this.beans.rowSpanSvc?.isCellSpanning(col, this.rowNode)) {
                 if (cellCtrl) {
                     cellCtrl.destroy();
                 }

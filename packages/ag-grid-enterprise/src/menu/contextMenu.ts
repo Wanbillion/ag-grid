@@ -160,7 +160,7 @@ export class ContextMenuService extends BeanStub implements NamedBean, IContextM
         rowComp: RowCtrl | null,
         cellCtrl: CellCtrl
     ): void {
-        const rowNode = rowComp?.rowNode ?? null;
+        const rowNode = cellCtrl?.rowNode ?? null; // is this change ok? I don't see any reason not to
         const column = cellCtrl?.column ?? null;
         const { valueSvc, ctrlsSvc } = this.beans;
         const value = column ? valueSvc.getValue(column, rowNode) : null;

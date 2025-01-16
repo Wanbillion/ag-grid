@@ -34,6 +34,10 @@ export class CellSpan {
         return this.firstNode;
     }
 
+    public getLastNode(): RowNode {
+        return this.lastNode;
+    }
+
     public getCellHeight(): number {
         return this.lastNode.rowTop! + this.lastNode.rowHeight! - this.firstNode.rowTop! - 1; // -1 should be border height I think
     }
@@ -112,13 +116,8 @@ export class RowSpanCache extends BeanStub {
         });
     }
 
-    public shouldSkipCell(node: RowNode): boolean {
-        return !!this.valueNodeMap.get(node);
-    }
-
     public isCellSpanning(node: RowNode): boolean {
-        const spanData = this.valueNodeMap.get(node);
-        return !!spanData && spanData.getFirstNode() === node;
+        return !!this.valueNodeMap.get(node);
     }
 
     public getCellSpan(node: RowNode): CellSpan | undefined {

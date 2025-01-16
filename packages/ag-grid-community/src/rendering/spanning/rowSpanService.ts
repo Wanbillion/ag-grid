@@ -38,14 +38,6 @@ export class RowSpanService extends BeanStub implements NamedBean {
         this.spanningColumns.forEach((cache) => cache.buildCache());
     }
 
-    public shouldSkipCell(col: AgColumn, rowNode: RowNode): boolean {
-        const cache = this.spanningColumns.get(col);
-        if (!cache) {
-            return false;
-        }
-        return cache.shouldSkipCell(rowNode);
-    }
-
     public isCellSpanning(col: AgColumn, rowNode: RowNode): boolean {
         const cache = this.spanningColumns.get(col);
         if (!cache) {
@@ -53,6 +45,15 @@ export class RowSpanService extends BeanStub implements NamedBean {
         }
 
         return cache.isCellSpanning(rowNode);
+    }
+
+    public getLastSpannedRow(col: AgColumn, rowNode: RowNode) {
+        const cache = this.spanningColumns.get(col);
+        if (!cache) {
+            return undefined;
+        }
+
+        return cache.getCellSpan(rowNode)?.getLastNode() ?? undefined;
     }
 
     public getSpannedHeight(col: AgColumn, rowNode: RowNode): number | undefined {

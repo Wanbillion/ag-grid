@@ -145,7 +145,7 @@ export class CellCtrl extends BeanStub {
         this.beans.focusSvc.clearRestoreFocus();
     }
 
-    protected addFeatures(): void {
+    private addFeatures(): void {
         const { beans } = this;
         this.positionFeature = new CellPositionFeature(this, beans);
         this.customStyleFeature = beans.cellStyles?.createCellCustomStyleFeature(this, beans);

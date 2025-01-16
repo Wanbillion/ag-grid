@@ -190,6 +190,7 @@ export class CellNavigationService extends BeanStub implements NamedBean {
         }
 
         const rowNode = rowModel.getRow(rowPosition.rowIndex);
+
         const nextStickyPosition = ignoreSticky ? undefined : this.getNextStickyPosition(rowNode);
 
         if (nextStickyPosition) {
@@ -234,7 +235,21 @@ export class CellNavigationService extends BeanStub implements NamedBean {
             return null;
         }
 
-        const rowBelow = this.getRowBelow(lastCell);
+        // probs move this into a svc...
+        // Adjust spanned cell so when moving down treats this cell as last rows cell, not first.
+        let adjustedLastCell = lastCell;
+        if (this.beans.rowSpanSvc) {
+            const row = this.beans.rowModel.getRow(lastCell.rowIndex);
+            if (row) {
+                const lastSpannedRow = this.beans.rowSpanSvc?.getLastSpannedRow(lastCell.column as AgColumn, row);
+                adjustedLastCell = {
+                    ...lastCell,
+                    rowIndex: lastSpannedRow?.rowIndex ?? lastCell.rowIndex,
+                };
+            }
+        }
+
+        const rowBelow = this.getRowBelow(adjustedLastCell);
         if (rowBelow) {
             return {
                 rowIndex: rowBelow.rowIndex,

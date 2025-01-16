@@ -75,6 +75,7 @@ export class SpannedCellRenderer
             });
         }
 
+        // if no new cells, and size is equal can assume no removals either.
         const sameCount = newCellCtrls.size === previousCtrls.size;
         if (!hasNew && sameCount) return;
 
