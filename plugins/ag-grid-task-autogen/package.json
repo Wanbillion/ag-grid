@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@nx/devkit": "18.3.4",
-    "nx": "18.3.4",
+    "nx": "20.5.1",
     "tslib": "^2.3.0"
   },
   "type": "module",
